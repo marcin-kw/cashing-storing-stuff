@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple Data Viewer</title>
+</head>
+<body>
+    <button onclick="loadData()">Load Data</button>
+
+    <h2>Add Data</h2>
+    <input type="text" id="newData">
+    <button onclick="addData()">Add Data</button>
+
+    <h2>Data Table</h2>
+    <table id="dataTable">
+    </table>
+
+    <script>
+        function loadData() {
+            fetch('/get-data')
+                .then(response => response.json())
+                .then(data => {
+                    const table = document.getElementById('dataTable');
+                    table.innerHTML = ''; // clear table
+                    data.forEach(item => {
+                        const row = table.insertRow();
+                        const cell = row.insertCell(0);
+                        cell.textContent = item;
+                    });
+                });
+        }
+
+        function addData() {
+            const input = document.getElementById('newData');
+            const item = input.value;
+            if (!item) return;
+
+            fetch('/add-data', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ item: item })
+            })
+            .then(response => response.json())
+            .then(json => {
+                if (json.message === "Data added!") {
+                    loadData();
+                    input.value = ''; // clear input
+                } else {
+                    alert("Error adding data!");
+                }
+            });
+        }
+    </script>
+</body>
+</html>
